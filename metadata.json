@@ -1,0 +1,7 @@
+{
+  "name": "Sifu's Birthday",
+  "description": "An emotional, interactive birthday experience with candle blowing and handwritten letters.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
