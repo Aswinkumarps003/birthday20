@@ -71,7 +71,7 @@ export const FinalScreen: React.FC = () => {
                     FOR SIFU
                  </text>
                  <text x="160" y="190" textAnchor="middle" fill="white" className="font-sans text-sm font-light opacity-80 uppercase tracking-widest" style={{ pointerEvents: 'none' }}>
-                    (Achu)
+                    (Tap Me)
                  </text>
                </svg>
             </div>
