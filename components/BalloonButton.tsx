@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface BalloonButtonProps {
@@ -19,6 +19,11 @@ const CONFETTI_COLORS = [
 
 export const BalloonButton: React.FC<BalloonButtonProps> = ({ onClick, text, color, disabled, delay = 0 }) => {
   const [isPopped, setIsPopped] = useState(false);
+
+  // If text changes (e.g. Next -> Finish), reset the popped state to show the new button
+  useEffect(() => {
+    setIsPopped(false);
+  }, [text]);
 
   const handleClick = (e: React.MouseEvent) => {
     if (disabled || isPopped) return;
