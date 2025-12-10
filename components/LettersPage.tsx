@@ -8,8 +8,8 @@ import { BalloonButton } from './BalloonButton';
 import { MouseTrail } from './MouseTrail';
 import { FinalScreen } from './FinalScreen';
 
-// A more emotional, romantic background track
-const BACKGROUND_MUSIC = "./violin.mp3"; 
+// Playlist for background music (served from /public)
+const PLAYLIST = ['/violin.mp3', '/lovely.mp3'];
 
 const NAV_COLORS = [
     '#FF6B6B', // vibPink
@@ -58,9 +58,11 @@ export const LettersPage: React.FC = () => {
   const [isAnimating, setIsAnimating] = useState(false);
   const [direction, setDirection] = useState(1);
   const [showMusic, setShowMusic] = useState(true);
+  const [trackIndex, setTrackIndex] = useState(0);
   const [triggerPlane, setTriggerPlane] = useState(false);
   const [showFinalScreen, setShowFinalScreen] = useState(false);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+  const [showZoom, setShowZoom] = useState(false);
 
   // Audio ref for background music
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -75,15 +77,18 @@ export const LettersPage: React.FC = () => {
   const rotateY = useTransform(mouseX, [0, window.innerWidth], [-3, 3]);
 
   useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = 0.3; // Slightly higher volume for this track
-      if (showMusic) {
-        audioRef.current.play().catch(e => console.log("Auto-play prevented"));
-      } else {
-        audioRef.current.pause();
-      }
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.src = PLAYLIST[trackIndex];
+    audio.volume = 0.3;
+
+    if (showMusic) {
+      audio.play().catch(e => console.log("Auto-play prevented", e));
+    } else {
+      audio.pause();
     }
-  }, [showMusic]);
+  }, [showMusic, trackIndex]);
 
   // Track global mouse movement for 3D effects
   useEffect(() => {
@@ -355,7 +360,10 @@ export const LettersPage: React.FC = () => {
       >
         {showMusic ? '🔊' : '🔇'}
       </button>
-      <audio ref={audioRef} loop src={BACKGROUND_MUSIC} />
+      <audio
+        ref={audioRef}
+        onEnded={() => setTrackIndex((prev) => (prev + 1) % PLAYLIST.length)}
+      />
 
       {/* Progress (Hide on final screen) */}
       {!showFinalScreen && (
@@ -451,15 +459,22 @@ export const LettersPage: React.FC = () => {
                         </h2>
 
                         {/* Image Container - The Letter Itself */}
-                        <div className="relative w-full flex-1 bg-gray-50 p-1 md:p-2 shadow-[inset_0_0_15px_rgba(0,0,0,0.05)] border border-gray-100 rotate-[0.5deg] transition-transform hover:rotate-0">
-                            <div className="w-full h-full overflow-hidden relative min-h-[350px] md:min-h-[400px]">
+                        <div className="relative w-full flex-1 bg-gray-50 p-1 md:p-2 shadow-[inset_0_0_15px_rgba(0,0,0,0.05)] border border-gray-100 rotate-[0.5deg] transition-transform hover:rotate-0 aspect-[3/4]">
+                            <div className="w-full h-full overflow-hidden relative">
                                 <img 
                                     src={currentLetter.image} 
                                     alt={`Letter ${currentIndex + 1}`} 
-                                    className="w-full h-full object-cover rounded-sm"
+                                    className="w-full h-full object-contain rounded-sm"
                                 />
                                  {/* Subtle vignette over image */}
                                 <div className="absolute inset-0 shadow-[inset_0_0_30px_rgba(122,31,40,0.1)] pointer-events-none"></div>
+                                <button
+                                    onClick={() => setShowZoom(true)}
+                                    className="absolute top-2 right-2 z-20 p-2 bg-white/90 rounded-full shadow-sm border border-gray-200 hover:bg-vibBlue/20 transition"
+                                    aria-label="Zoom image"
+                                >
+                                    🔍
+                                </button>
                             </div>
                         </div>
 
@@ -503,6 +518,39 @@ export const LettersPage: React.FC = () => {
           </div>
       )}
 
+      {/* Fullscreen zoom overlay */}
+      <AnimatePresence>
+        {showZoom && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+            onClick={() => setShowZoom(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative max-w-5xl max-h-[90vh] w-full flex items-center justify-center"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={currentLetter.image}
+                alt={`Letter ${currentIndex + 1} full view`}
+                className="max-h-[90vh] max-w-full object-contain rounded-sm shadow-2xl bg-black"
+              />
+              <button
+                onClick={() => setShowZoom(false)}
+                className="absolute top-2 right-2 p-2 bg-white/90 rounded-full shadow border border-gray-200 hover:bg-vibPink/20 transition"
+                aria-label="Close zoom"
+              >
+                ✕
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 };

@@ -124,6 +124,19 @@ export const FinalScreen: React.FC = () => {
                     </p>
                     <p className="text-xl md:text-2xl font-cursive text-gray-800 leading-relaxed">
                         and I'll always love you and pray for you...
+
+                         
+                    </p>
+
+                    <p className="text-xl md:text-2xl font-cursive text-gray-800 leading-relaxed">
+                        <br />
+                        ~ Sifu you were the poetry written by the God Himself.
+                        <br />
+                        <br />
+                        <center>And I... </center>
+                        <br />
+                        <center>I was the reader falling for every line. </center>
+                         
                     </p>
                 </div>
 
